@@ -48,6 +48,10 @@ export async function clearSession() {
 }
 
 // Token em memoria, para o apiFetch nao precisar ser async antes da requisicao.
+//
+// Devolve null quando nao ha sessao — nao um token placeholder. O backend deixou de
+// aceitar 'default-tenant-token' (era um bypass que autenticava qualquer chamada),
+// entao enviar esse valor so geraria 401 com uma causa confusa.
 export function currentToken() {
-  return cached?.token || 'default-tenant-token';
+  return cached?.token || null;
 }
