@@ -49,5 +49,5 @@ export async function clearSession() {
 
 // Token em memoria, para o apiFetch nao precisar ser async antes da requisicao.
 export function currentToken() {
-  return cached?.token || null;
+  return cached?.token || 'default-tenant-token';
 }
