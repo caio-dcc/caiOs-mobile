@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Pressable, Image, ScrollView } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
+import { api } from '../api.js';
 import { OSINT, OSINTFINDINGS, INTEL_SOURCES, INTEL_MODES } from '../data.js';
 import { ChipRow, Slider, GridRow, font } from '../ui.jsx';
 
@@ -13,6 +16,27 @@ export default function Inteligencia() {
   const [sources, setSources] = useState([0, 1, 2]);
   const [mode, setMode] = useState(0);
   const [limits, setLimits] = useState([55, 70]);
+  const [cameras, setCameras] = useState([]);
+  const [loadingCameras, setLoadingCameras] = useState(false);
+  const [showCamerasView, setShowCamerasView] = useState(false);
+
+  useEffect(() => {
+    fetchCameras();
+  }, []);
+
+  const fetchCameras = async () => {
+    setLoadingCameras(true);
+    try {
+      const data = await api.get('/v1/cameras/proximas?lat=-22.9068&lng=-43.1729&raio=15');
+      if (Array.isArray(data)) {
+        setCameras(data);
+      }
+    } catch (e) {
+      console.error('Erro ao buscar câmeras mobile:', e);
+    } finally {
+      setLoadingCameras(false);
+    }
+  };
 
   return (
     <View>
@@ -30,7 +54,7 @@ export default function Inteligencia() {
 
       {cfg && (
         <View style={{ borderRadius: 18, borderWidth: 1, borderColor: palette.ac2Alpha(0.18), backgroundColor: palette.acdAlpha(0.18), padding: 18, marginBottom: 18 }}>
-          <GridRow min={240} gap={20}>
+          <GridRow min={240} gap={20} cols={1}>
             <View>
               <Text style={{ fontFamily: font.display, fontSize: 13, marginBottom: 11, color: '#fff' }}>Fontes consultadas</Text>
               <ChipRow options={INTEL_SOURCES} value={sources} onPick={i => setSources(s => (s.includes(i) ? s.filter(k => k !== i) : s.concat(i)))} />
@@ -82,6 +106,43 @@ export default function Inteligencia() {
             </View>
           </Pressable>
         ))}
+
+        {/* Card de Câmeras Públicas no Mobile */}
+        <Pressable
+          onPress={() => setShowCamerasView(v => !v)}
+          style={{ borderRadius: 18, borderWidth: 1, borderColor: palette.ac2Alpha(0.4), backgroundColor: palette.acdAlpha(0.32), padding: 16, gap: 8 }}
+        >
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>📹 Câmeras de Trânsito RJ</Text>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#7ce0a8', backgroundColor: 'rgba(124, 224, 168, 0.2)', paddingVertical: 2, paddingHorizontal: 6, borderRadius: 6 }}>
+              AO VIVO ({cameras.length})
+            </Text>
+          </View>
+          <Text style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.7)' }}>
+            Feeds e monitoramento de trânsito em tempo real nas principais vias do Rio.
+          </Text>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: palette.acLite, marginTop: 4 }}>
+            {showCamerasView ? 'Ocultar Câmeras ▲' : 'Visualizar Câmeras ▼'}
+          </Text>
+        </Pressable>
+
+        {showCamerasView && (
+          <ScrollView horizontal nestedScrollEnabled showsHorizontalScrollIndicator={false} style={{ marginVertical: 8 }}>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              {loadingCameras ? (
+                <Text style={{ color: palette.acLite, fontSize: 13 }}>Carregando câmeras de trânsito...</Text>
+              ) : (
+                cameras.map(cam => (
+                  <View key={cam.id} style={{ width: 220, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(0,0,0,0.5)', padding: 10, gap: 8 }}>
+                    <Image source={{ uri: cam.imageUrl }} style={{ width: '100%', height: 120, borderRadius: 10 }} />
+                    <Text style={{ fontSize: 13, fontWeight: '600', color: '#fff' }} numberOfLines={2}>{cam.nome}</Text>
+                    <Text style={{ fontSize: 11, color: palette.acLite }}>📍 {cam.distanciaKm} km de distância</Text>
+                  </View>
+                ))
+              )}
+            </View>
+          </ScrollView>
+        )}
       </View>
 
       <Text style={{ fontFamily: font.display, fontSize: 14, marginBottom: 12, color: '#fff' }}>Achados recentes</Text>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { FINSTATS, EXPENSES } from '../data.js';
@@ -22,11 +23,12 @@ export default function Financeiro() {
 
   return (
     <View style={{ gap: 22 }}>
-      <GridRow min={200}>
+      {/* indicadores 2x2 lado a lado, nao empilhados */}
+      <GridRow min={150} gap={10} cols={2}>
         {stats.map(s => <StatCard key={s.label} {...s} value={st.money(s.value)} />)}
       </GridRow>
 
-      <GridRow min={320}>
+      <GridRow min={320} cols={1}>
         <View style={{ padding: 20, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.02)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)' }}>
           <Text style={{ fontFamily: font.display, fontSize: 18, fontWeight: '600', color: '#fff' }}>Gastos & Despesas</Text>
           <Text style={{ fontSize: 13, marginBottom: 14, opacity: 0.7, color: '#fff' }}>cada gasto puxa evento e pessoa — é assim que o dia fecha</Text>

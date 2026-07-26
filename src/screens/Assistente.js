@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, ScrollView } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { CHATREFS, PERSONASOURCES } from '../data.js';
@@ -95,7 +97,7 @@ export default function Assistente() {
   };
 
   return (
-    <GridRow min={340} gap={26}>
+    <GridRow min={340} gap={26} cols={1}>
       <View style={{ gap: 14 }}>
         <ScrollView style={{ maxHeight: 400 }}>
           {messages.map((m, i) => (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { AUDIT, AUDIT_FILTERS } from '../data.js';

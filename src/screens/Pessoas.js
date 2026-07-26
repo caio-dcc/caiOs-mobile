@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Pressable, Image } from 'react-native';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { peopleView } from './people.js';

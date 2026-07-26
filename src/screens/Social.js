@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { peopleView } from './people.js';
@@ -23,7 +24,7 @@ export default function Social() {
           <Text style={{ color: '#fff', fontFamily: font.body, fontSize: 15 }}>anotar agora</Text>
         </Pressable>
       </View>
-      <GridRow min={300}>
+      <GridRow min={300} cols={1}>
         {people.map(p => (
           <Pressable key={p.name} onPress={() => openModal({ kind: 'person', person: p })} style={{ borderRadius: 18, padding: 17 }}>
             <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>

@@ -1,11 +1,19 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, Pressable, TextInput, Modal as RNModal, ScrollView, StyleSheet } from 'react-native';
+import { View, Pressable, Modal as RNModal, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import TextInput from './TextInput.js';
+import Text from './Text.js';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSequence, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { useSettings } from './settings.jsx';
 import Particles from './Particles.js';
 
-export const font = { display: 'VT323', body: 'VT323' };
+// No web, font.display e font.body sao a MESMA familia (VT323) — a distincao e
+// vestigial. Aqui os dois ficam `undefined` de proposito: assim o <Text> global
+// (src/Text.js) resolve a familia a partir do setting `globalFont`, em vez de
+// cada style travar 'VT323' e quebrar o seletor de fonte de Configuracoes.
+// Mantido como objeto para nao ter de tocar nos ~70 `fontFamily: font.display`
+// espalhados pelas telas.
+export const font = { display: undefined, body: undefined };
 
 export const muted = { fontSize: 15, color: '#fff', opacity: 0.55 };
 export const label = { fontSize: 15, color: '#fff', fontWeight: '600', marginBottom: 7 };
@@ -20,7 +28,7 @@ export function H2({ children, sub }) {
 }
 
 export function Chip({ on, children, onPress }) {
-  const { palette } = useSettings();
+  const { palette, allNeons } = useSettings();
   const particleRef = useRef(null);
   const scale = useSharedValue(1);
 
@@ -51,11 +59,15 @@ export function Chip({ on, children, onPress }) {
       >
         <Text style={{
           fontFamily: font.body, fontSize: 16, color: on ? '#fff' : 'rgba(255,255,255,.6)',
-          fontWeight: on ? '700' : '400'
+          fontWeight: on ? '700' : '400',
+          // neon do chip selecionado — equivale ao textShadow em camadas do web
+          ...(on && allNeons !== false
+            ? { textShadowColor: palette.ac, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 12 }
+            : null)
         }}>
           {on ? '✓ ' : ''}{children}
         </Text>
-        <Particles ref={particleRef} color={palette.ac} />
+        <Particles ref={particleRef} palette={palette} />
       </Pressable>
     </Animated.View>
   );
@@ -242,13 +254,25 @@ export function Slider({ value, onChange }) {
   );
 }
 
+// Compacto o suficiente para caber 2 por linha num telefone, com moldura leve
+// para separar visualmente as colunas lado a lado.
 export function StatCard({ label: l, value, hint, color }) {
+  const { allNeons } = useSettings();
   const glowColor = color || '#fff';
   return (
-    <View style={{ borderRadius: 18, paddingVertical: 18, paddingHorizontal: 18 }}>
-      <Text style={{ fontSize: 14, letterSpacing: 1.2, textTransform: 'uppercase', color: '#fff', fontWeight: '600' }}>{l}</Text>
-      <Text style={{ fontFamily: font.display, fontSize: 32, fontWeight: '600', marginTop: 10, color: glowColor }}>{value}</Text>
-      <Text style={{ fontSize: 15, color: '#fff', marginTop: 4 }}>{hint}</Text>
+    <View style={{
+      borderRadius: 16, paddingVertical: 14, paddingHorizontal: 14,
+      borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)', backgroundColor: 'rgba(255,255,255,0.02)'
+    }}>
+      <Text numberOfLines={2} style={{ fontSize: 11.5, letterSpacing: 1, textTransform: 'uppercase', color: 'rgba(255,255,255,.72)', fontWeight: '600' }}>{l}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit style={{
+        fontFamily: font.display, fontSize: 26, fontWeight: '600', marginTop: 8, color: glowColor,
+        // valor com halo neon, como no StatCard do web
+        ...(allNeons !== false
+          ? { textShadowColor: glowColor, textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 14 }
+          : null)
+      }}>{value}</Text>
+      <Text numberOfLines={1} style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginTop: 3 }}>{hint}</Text>
     </View>
   );
 }
@@ -324,13 +348,30 @@ export function AnimatedList({ items = [], onAdd, onRemove, title, emptyText = '
 export const card = { borderRadius: 20, padding: 20 };
 export const field = { borderRadius: 12, color: '#fff', fontFamily: font.body, fontSize: 17, paddingVertical: 11, paddingHorizontal: 13 };
 
-// Substitui o grid() CSS do web — RN nao tem display:grid, entao usamos flexWrap
-// com basis fixo por item (aproximacao de repeat(auto-fit, minmax(min,1fr))).
-export function GridRow({ children, min = 160, gap = 14, style }) {
+// Substitui o grid() CSS do web — RN nao tem display:grid.
+//
+// Antes usava `flexBasis: min, minWidth: min`, copiando o minmax() do web. Num
+// telefone (~372pt uteis) qualquer `min` >= 190 fazia o minWidth empurrar cada
+// card para a propria linha — era por isso que os indicadores apareciam todos
+// empilhados na vertical. Agora derivamos a QUANTIDADE de colunas que cabe e
+// deixamos os itens dividirem a largura, sem minWidth travando a quebra.
+const GRID_W = Dimensions.get('window').width - 40;   // menos o padding do ScreenShell
+
+export function GridRow({ children, min = 160, gap = 14, style, cols }) {
+  const items = React.Children.toArray(children).filter(Boolean);
+  if (!items.length) return null;
+
+  // quantas colunas de `min` cabem de fato, no maximo 2 no telefone
+  const fit = cols || Math.max(1, Math.min(2, Math.floor((GRID_W + gap) / (min + gap))));
+  const columns = Math.min(fit, items.length);
+  const basis = columns > 1 ? (GRID_W - gap * (columns - 1)) / columns : '100%';
+
   return (
     <View style={[{ flexDirection: 'row', flexWrap: 'wrap', gap }, style]}>
-      {React.Children.map(children, child => (
-        <View style={{ flexGrow: 1, flexBasis: min, minWidth: min }}>{child}</View>
+      {items.map((child, i) => (
+        <View key={i} style={{ flexGrow: 1, flexBasis: basis, maxWidth: columns > 1 ? basis : undefined }}>
+          {child}
+        </View>
       ))}
     </View>
   );

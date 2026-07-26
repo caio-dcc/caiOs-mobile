@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { font, card, H2, GridRow, Chip } from '../ui.jsx';
 
@@ -82,7 +84,8 @@ export default function Filmes() {
         </Pressable>
       </View>
 
-      <GridRow min={200}>
+      {/* indicadores lado a lado */}
+      <GridRow min={150} gap={10} cols={2}>
         <View style={{ ...card, gap: 6 }}>
           <Text style={{ fontSize: 12, opacity: 0.5, textTransform: 'uppercase', color: '#fff' }}>Filmes Assistidos</Text>
           <Text style={{ fontSize: 26, fontWeight: '700', color: palette.acLite }}>{movies.length}</Text>
@@ -100,7 +103,7 @@ export default function Filmes() {
       {showAddForm && (
         <View style={{ ...card, gap: 16, borderWidth: 1, borderColor: palette.ac2Alpha(0.35) }}>
           <Text style={{ fontSize: 15, fontWeight: '700', color: palette.acLite }}>Registrar Novo Filme</Text>
-          <GridRow min={200} gap={14}>
+          <GridRow min={200} gap={14} cols={1}>
             <View>
               <Text style={{ fontSize: 12, opacity: 0.6, marginBottom: 5, color: '#fff' }}>Título do Filme</Text>
               <FieldInput placeholder="Ex: Blade Runner 2049" value={newTitle} onChangeText={setNewTitle} />

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, Image, Modal, ScrollView } from 'react-native';
+import { View, Pressable, Image, Modal, ScrollView } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { api } from '../api.js';
@@ -195,11 +197,12 @@ export default function Inicio() {
         </View>
       </View>
 
-      <GridRow min={160}>
+      {/* indicadores lado a lado, 2 por linha */}
+      <GridRow min={150} gap={10} cols={2}>
         {displayStats.map(s => <StatCard key={s.label} {...s} value={st.money(s.value)} />)}
       </GridRow>
 
-      <GridRow min={320}>
+      <GridRow min={320} cols={1}>
         <View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
             <Text style={{ fontFamily: font.display, fontSize: 16, fontWeight: '600', color: '#fff' }}>O dia de hoje</Text>

@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { SWATCHES, PROMPT_PRESETS, WORK_RULES } from '../data.js';
 import { RAMP_KEYS } from '../theme.js';
 import { Chip, ChipRow, Toggle, AnimatedList, card, field, label, muted, font, GridRow, H2 } from '../ui.jsx';
+import { FONT_CHOICES, familyFor } from '../fonts.js';
 
 const AI_SCOPES = ['Financeiro', 'Social e pessoas', 'Anotações', 'Eventos e calendário', 'Itens', 'Inteligência'];
 const AI_NEVER = ['Julgar minhas escolhas', 'Inventar sem fonte', 'Dar conselho médico', 'Falar de dinheiro sem eu pedir'];
@@ -38,30 +41,47 @@ function RecurringExpensesManager() {
 
   const toggleNewDay = dayIdx => setNewDays(prev => prev.includes(dayIdx) ? prev.filter(d => d !== dayIdx) : [...prev, dayIdx].sort());
 
+  // Chip de dia da semana. Fica em componente proprio porque os 7 dias tem de
+  // caber na largura do telefone: `flex: 1` distribui igualmente em vez de cada
+  // chip pedir a largura do proprio texto e o ultimo ser cortado.
+  const DayChip = ({ dayName, active, onPress }) => (
+    <Pressable onPress={onPress} style={{ flex: 1 }}>
+      <Text style={{
+        fontSize: 12, fontWeight: '700', textAlign: 'center',
+        paddingVertical: 5, borderRadius: 6,
+        backgroundColor: active ? palette.ac : 'rgba(255,255,255,.08)',
+        color: active ? '#fff' : 'rgba(255,255,255,.5)'
+      }}>{dayName}</Text>
+    </Pressable>
+  );
+
   return (
     <View style={{ gap: 12, marginTop: 6 }}>
-      <Text style={label}>Gastos Padrão Recorrentes por Dia da Semana</Text>
       <Text style={{ fontSize: 13, color: 'rgba(255,255,255,.6)' }}>Estes gastos são inseridos automaticamente no formulário do dia selecionado.</Text>
 
       <View style={{ gap: 10 }}>
         {list.map(item => (
-          <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: 10, borderRadius: 14, backgroundColor: palette.acdAlpha(0.3), borderWidth: 1, borderColor: 'rgba(255,255,255,.08)' }}>
-            <View style={{ minWidth: 100 }}>
-              <Text style={{ fontSize: 15.5, fontWeight: '600', color: '#fff' }}>{item.name}</Text>
-              <Text style={{ fontSize: 14, color: palette.acLite, fontWeight: '700' }}>{item.amount}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap' }}>
-                {DAYS_OF_WEEK.map((dayName, dayIdx) => {
-                  const active = item.days.includes(dayIdx);
-                  return (
-                    <Pressable key={dayName + dayIdx} onPress={() => toggleDay(item.id, dayIdx)}>
-                      <Text style={{ fontSize: 12, fontWeight: '700', paddingVertical: 3, paddingHorizontal: 7, borderRadius: 6, backgroundColor: active ? palette.ac : 'rgba(255,255,255,.08)', color: active ? '#fff' : 'rgba(255,255,255,.5)' }}>{dayName}</Text>
-                    </Pressable>
-                  );
-                })}
+          <View key={item.id} style={{ gap: 10, padding: 12, borderRadius: 14, backgroundColor: palette.acdAlpha(0.3), borderWidth: 1, borderColor: 'rgba(255,255,255,.08)' }}>
+            {/* nome + valor + remover numa linha; os dias na linha de baixo, com
+                a largura toda — antes disputavam espaco e Sex/Sab eram cortados */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15.5, fontWeight: '600', color: '#fff' }}>{item.name}</Text>
+                <Text style={{ fontSize: 14, color: palette.acLite, fontWeight: '700' }}>{item.amount}</Text>
               </View>
-              <Pressable onPress={() => removeExpense(item.id)}><Text style={{ color: '#ff7777', fontSize: 15, fontWeight: '700' }}>✕</Text></Pressable>
+              <Pressable onPress={() => removeExpense(item.id)} hitSlop={8}>
+                <Text style={{ color: '#ff7777', fontSize: 15, fontWeight: '700' }}>✕</Text>
+              </Pressable>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
+              {DAYS_OF_WEEK.map((dayName, dayIdx) => (
+                <DayChip
+                  key={dayName + dayIdx}
+                  dayName={dayName}
+                  active={item.days.includes(dayIdx)}
+                  onPress={() => toggleDay(item.id, dayIdx)}
+                />
+              ))}
             </View>
           </View>
         ))}
@@ -74,19 +94,21 @@ function RecurringExpensesManager() {
             <TextInput placeholder="Ex: Passe VLT / Almoço" placeholderTextColor="rgba(255,255,255,.4)" value={newDesc} onChangeText={setNewDesc}
               style={{ flex: 1, minWidth: 140, borderRadius: 10, backgroundColor: palette.acdAlpha(0.35), color: '#fff', fontSize: 14, padding: 8 }} />
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <View style={{ flexDirection: 'row', gap: 4, alignItems: 'center' }}>
-              <Text style={{ fontSize: 12, opacity: 0.7, marginRight: 4, color: '#fff' }}>Dias:</Text>
-              {DAYS_OF_WEEK.map((dayName, dayIdx) => {
-                const active = newDays.includes(dayIdx);
-                return (
-                  <Pressable key={'new-' + dayName + dayIdx} onPress={() => toggleNewDay(dayIdx)}>
-                    <Text style={{ fontSize: 12, fontWeight: '700', paddingVertical: 3, paddingHorizontal: 7, borderRadius: 6, backgroundColor: active ? palette.ac : 'rgba(255,255,255,.08)', color: active ? '#fff' : 'rgba(255,255,255,.5)' }}>{dayName}</Text>
-                  </Pressable>
-                );
-              })}
+          <View style={{ gap: 10 }}>
+            <Text style={{ fontSize: 12, opacity: 0.7, color: '#fff' }}>Dias:</Text>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
+              {DAYS_OF_WEEK.map((dayName, dayIdx) => (
+                <DayChip
+                  key={'new-' + dayName + dayIdx}
+                  dayName={dayName}
+                  active={newDays.includes(dayIdx)}
+                  onPress={() => toggleNewDay(dayIdx)}
+                />
+              ))}
             </View>
-            <Pressable onPress={addExpense}><Text style={{ color: '#fff', fontWeight: '700', fontSize: 14, paddingVertical: 6, paddingHorizontal: 14 }}>+ Salvar Gasto Recorrente</Text></Pressable>
+            <Pressable onPress={addExpense} style={{ alignSelf: 'flex-start', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14, backgroundColor: palette.acDeep }}>
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>+ Salvar Gasto Recorrente</Text>
+            </Pressable>
           </View>
         </View>
       </View>
@@ -102,7 +124,7 @@ export default function Configuracoes() {
 
   return (
     <View style={{ gap: 20 }}>
-      <GridRow min={330} gap={16}>
+      <GridRow min={330} gap={16} cols={1}>
         <View style={{ gap: 16 }}>
           <View style={card}>
             <H2 sub="é assim que o sistema e a assistente te chamam.">Você</H2>
@@ -208,7 +230,7 @@ export default function Configuracoes() {
 
       <View style={card}>
         <H2 sub="opções visuais, tipografia e padrão de inicialização de rotina diária.">Aparência & Rotina</H2>
-        <GridRow min={320} gap={20} style={{ marginTop: 16 }}>
+        <GridRow min={320} gap={20} cols={1} style={{ marginTop: 16 }}>
           <View style={{ gap: 16, backgroundColor: 'rgba(255,255,255,.02)', padding: 18, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,.05)' }}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: palette.acLite }}>Efeitos Visuais & Neon</Text>
 
@@ -230,11 +252,12 @@ export default function Configuracoes() {
               <Text style={{ fontSize: 14, fontWeight: '600', color: '#fff' }}>Fonte Global do Sistema</Text>
               <Text style={{ fontSize: 12, opacity: 0.5, marginBottom: 8, color: '#fff' }}>tipografia principal da interface</Text>
               <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-                {[['default', 'Padrão (VT323)'], ['quantico', 'Quantico'], ['firacode', 'Fira Code']].map(([fKey, fLabel]) => {
+                {FONT_CHOICES.map(([fKey, fLabel]) => {
                   const active = (st.globalFont || 'default') === fKey;
                   return (
                     <Pressable key={fKey} onPress={() => st.set({ globalFont: fKey })} style={{ borderWidth: 1, borderColor: active ? palette.ac2 : 'rgba(255,255,255,.15)', backgroundColor: active ? palette.acdAlpha(0.5) : 'rgba(255,255,255,.03)', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10 }}>
-                      <Text style={{ color: active ? '#fff' : 'rgba(255,255,255,.7)', fontSize: 14, fontWeight: '600' }}>{fLabel}</Text>
+                      {/* cada botao mostra o proprio tipo, como no web */}
+                      <Text style={{ color: active ? '#fff' : 'rgba(255,255,255,.7)', fontSize: 14, fontWeight: '600', fontFamily: familyFor(fKey, true) }}>{fLabel}</Text>
                     </Pressable>
                   );
                 })}

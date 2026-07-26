@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { useApp } from '../AppContext.js';
 import { WEEKDAYS, CAL_SEEDS, CAL_SPEND, CAL_PHOTO, CAL_TINT } from '../data.js';

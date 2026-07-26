@@ -1,8 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native';
+import { View, Pressable, Image } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
+import { ScrollView } from 'react-native-gesture-handler';
 import { api } from '../api.js';
 import { useSettings } from '../settings.jsx';
-import { font, card, H2, Chip, AnimatedList } from '../ui.jsx';
+import { font, card, H2, Chip, AnimatedList, GridRow } from '../ui.jsx';
+
+const CARD_IMAGE_MAP = {
+  'O Louco (0)': 'https://caios-backend.onrender.com/cards/00-TheFool.jpg',
+  'O Mago (I)': 'https://caios-backend.onrender.com/cards/01-TheMagician.jpg',
+  'A Sacerdotisa (II)': 'https://caios-backend.onrender.com/cards/02-TheHighPriestess.jpg',
+  'A Imperatriz (III)': 'https://caios-backend.onrender.com/cards/03-TheEmpress.jpg',
+  'O Imperador (IV)': 'https://caios-backend.onrender.com/cards/04-TheEmperor.jpg',
+  'O Hierofante (V)': 'https://caios-backend.onrender.com/cards/05-TheHierophant.jpg',
+  'Os Enamorados (VI)': 'https://caios-backend.onrender.com/cards/06-TheLovers.jpg',
+  'O Carro (VII)': 'https://caios-backend.onrender.com/cards/07-TheChariot.jpg',
+  'A Força (VIII)': 'https://caios-backend.onrender.com/cards/08-Strength.jpg',
+  'O Eremita (IX)': 'https://caios-backend.onrender.com/cards/09-TheHermit.jpg',
+  'A Roda da Fortuna (X)': 'https://caios-backend.onrender.com/cards/10-WheelOfFortune.jpg',
+  'A Justiça (XI)': 'https://caios-backend.onrender.com/cards/11-Justice.jpg',
+  'O Pendurado (XII)': 'https://caios-backend.onrender.com/cards/12-TheHangedMan.jpg',
+  'A Morte (XIII)': 'https://caios-backend.onrender.com/cards/13-Death.jpg',
+  'A Temperança (XIV)': 'https://caios-backend.onrender.com/cards/14-Temperance.jpg',
+  'O Diabo (XV)': 'https://caios-backend.onrender.com/cards/15-TheDevil.jpg',
+  'A Torre (XVI)': 'https://caios-backend.onrender.com/cards/16-TheTower.jpg',
+  'A Estrela (XVII)': 'https://caios-backend.onrender.com/cards/17-TheStar.jpg',
+  'A Lua (XVIII)': 'https://caios-backend.onrender.com/cards/18-TheMoon.jpg',
+  'O Sol (XIX)': 'https://caios-backend.onrender.com/cards/19-TheSun.jpg',
+  'O Julgamento (XX)': 'https://caios-backend.onrender.com/cards/20-Judgement.jpg',
+  'O Mundo (XXI)': 'https://caios-backend.onrender.com/cards/21-TheWorld.jpg'
+};
 
 const FULL_TAROT_DECK = [
   { name: 'O Louco (0)', element: 'Ar · Urano', symbol: '🃠', phrase: 'Novos começos, coragem de saltar e fé no fluxo da vida.' },
@@ -13,7 +41,7 @@ const FULL_TAROT_DECK = [
   { name: 'O Hierofante (V)', element: 'Touro', symbol: '☸', phrase: 'Tradição, aprendizado espiritual e busca por valores fundamentais.' },
   { name: 'Os Enamorados (VI)', element: 'Gêmeos', symbol: '❥', phrase: 'Escolhas do coração, alinhamento ético e uniões significativas.' },
   { name: 'O Carro (VII)', element: 'Câncer', symbol: '🛡', phrase: 'Determinação, superação de dualidades e vitória pela disciplina.' },
-  { name: 'A Força (VIII)', element: 'Leão', symbol: '♌︎', phrase: 'Domínio próprio, compaixão, coragem serena e paciência.' },
+  { name: 'A Força (VIII)', element: 'Leão', symbol: '<ctrl42>', phrase: 'Domínio próprio, compaixão, coragem serena e paciência.' },
   { name: 'O Eremita (IX)', element: 'Virgem', symbol: '🕯︎', phrase: 'Sabedoria da solitude, discernimento e a luz da experiência própria.' },
   { name: 'A Roda da Fortuna (X)', element: 'Júpiter', symbol: '⚙', phrase: 'Ciclos inevitáveis, viradas do destino e oportunidade no movimento.' },
   { name: 'A Justiça (XI)', element: 'Libra', symbol: '⚖', phrase: 'Verdade, causa e efeito, clareza racional e busca pelo equilíbrio.' },
@@ -30,29 +58,42 @@ const FULL_TAROT_DECK = [
 ];
 
 const METHOD_DESCRIPTIONS = {
-  '1 Carta': { title: '1 Carta (Insight Rápido)', positions: ['Insight Principal'], didactic: 'Ideal para perguntas diretas ou uma palavra-chave norteadora.' },
-  '3 Cartas': { title: '3 Cartas (Passado, Presente, Futuro)', positions: ['Passado / Raiz', 'Presente / Desafio', 'Futuro / Tendência'], didactic: 'Método clássico de causalidade temporal.' },
-  '5 Cartas': { title: '5 Cartas (Cruz Simples)', positions: ['Centro (Situação)', 'Obstáculo (Desafio)', 'Força a Favor', 'Força Contra', 'Desfecho'], didactic: 'Entenda dinâmicas de forças opostas em um dilema.' },
-  'Cruz Celta': { title: 'Cruz Celta (10 Cartas)', positions: ['1. Situação Atual', '2. O Desafio Imediato', '3. Base Inconsciente', '4. Passado Recente', '5. Objetivos', '6. Futuro Próximo', '7. Atitude Interna', '8. Ambiente Externo', '9. Esperanças e Receios', '10. Resultado Final'], didactic: 'O método mais rico e completo da tradição ocidental.' }
+  '1 Carta': { title: '1 Carta (Insight)', positions: ['Insight Principal'], didactic: 'Ideal para perguntas diretas ou intenção do dia.' },
+  '3 Cartas': { title: '3 Cartas (Linha Temporal)', positions: ['Passado', 'Presente', 'Futuro'], didactic: 'Método clássico de evolução temporal.' },
+  '5 Cartas': { title: '5 Cartas (Cruz Simples)', positions: ['Centro', 'Desafio', 'A Favor', 'Contra', 'Desfecho'], didactic: 'Dinâmicas de forças opostas em dilemas.' },
+  'Cruz Celta': { title: 'Cruz Celta (10 Cartas)', positions: ['1. Atual', '2. Desafio', '3. Raiz', '4. Passado', '5. Objetivo', '6. Futuro', '7. Atitude', '8. Ambiente', '9. Anseio', '10. Desfecho'], didactic: 'O método mais completo da tradição.' }
 };
 
 function TarotCardVisual({ cardData, palette }) {
-  const { position, card: cardName, reversed, symbol, element, phrase } = cardData;
+  const { position, card: cardName, reversed, element, phrase } = cardData;
+  const cardUri = CARD_IMAGE_MAP[cardName] || 'https://caios-backend.onrender.com/cards/CardBacks.jpg';
+
   return (
     <View style={{
-      width: 165, minHeight: 250, padding: 12, borderRadius: 16,
-      backgroundColor: 'rgba(0,0,0,0.45)', borderWidth: 1, borderColor: palette.ac2Alpha(0.4),
-      transform: [{ rotate: reversed ? '180deg' : '0deg' }], justifyContent: 'space-between', alignItems: 'center'
+      flex: 1, minWidth: '46%', padding: 10, borderRadius: 16,
+      backgroundColor: 'rgba(0,0,0,0.6)', borderWidth: 1, borderColor: palette.ac2Alpha(0.4),
+      transform: [{ rotate: reversed ? '180deg' : '0deg' }], justifyContent: 'space-between', alignItems: 'center', marginVertical: 4
     }}>
-      <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase', color: palette.acLite, textAlign: 'center' }}>{position}</Text>
-      <View style={{ alignItems: 'center', gap: 6 }}>
-        <Text style={{ fontSize: 34 }}>{symbol || '✦'}</Text>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: '#fff', textAlign: 'center' }}>{cardName}</Text>
-        {reversed && <Text style={{ fontSize: 10, fontWeight: '700', color: '#ff7c7c' }}>Invertida ↻</Text>}
+      <Text style={{ fontSize: 9.5, fontWeight: '700', letterSpacing: 0.8, textTransform: 'uppercase', color: palette.acLite, textAlign: 'center', marginBottom: 4 }}>{position}</Text>
+      
+      {/* Imagem Autêntica do Baralho no Mobile */}
+      <View style={{ width: '100%', height: 160, borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', marginVertical: 6 }}>
+        <Image
+          source={{ uri: cardUri }}
+          style={{ width: '100%', height: '100%', borderRadius: 10 }}
+          resizeMode="cover"
+        />
+        {reversed && (
+          <View style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.8)', paddingVertical: 1, paddingHorizontal: 4, borderRadius: 4 }}>
+            <Text style={{ fontSize: 8.5, fontWeight: '700', color: '#ff7c7c' }}>Invertida ↻</Text>
+          </View>
+        )}
       </View>
-      <View style={{ alignItems: 'center' }}>
-        <Text style={{ fontSize: 10, opacity: 0.55, textTransform: 'uppercase', color: '#fff', marginBottom: 4 }}>{element}</Text>
-        <Text numberOfLines={2} style={{ fontSize: 10.5, opacity: 0.8, fontStyle: 'italic', color: '#fff', textAlign: 'center' }}>"{phrase}"</Text>
+
+      <View style={{ alignItems: 'center', gap: 2 }}>
+        <Text style={{ fontSize: 12.5, fontWeight: '700', color: '#fff', textAlign: 'center' }}>{cardName}</Text>
+        <Text style={{ fontSize: 9, opacity: 0.55, textTransform: 'uppercase', color: '#fff' }}>{element}</Text>
+        <Text numberOfLines={2} style={{ fontSize: 9.5, opacity: 0.8, fontStyle: 'italic', color: '#fff', textAlign: 'center' }}>"{phrase}"</Text>
       </View>
     </View>
   );
@@ -136,84 +177,85 @@ export default function Espiritualidade() {
   };
 
   return (
-    <View style={{ gap: 22 }}>
-      <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,.08)', paddingBottom: 12 }}>
+    <View style={{ gap: 18 }}>
+      <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,.08)', paddingBottom: 10 }}>
         <Chip on={activeTab === 'tarot'} onPress={() => setActiveTab('tarot')}>☯ Tarot & Oráculo</Chip>
-        <Chip on={activeTab === 'diario'} onPress={() => setActiveTab('diario')}>✎ Diário & Intuição</Chip>
-        <Chip on={activeTab === 'rituais'} onPress={() => setActiveTab('rituais')}>🕯 Rituais & Costumes</Chip>
+        <Chip on={activeTab === 'diario'} onPress={() => setActiveTab('diario')}>✍ Diário & Intuição</Chip>
+        <Chip on={activeTab === 'rituais'} onPress={() => setActiveTab('rituais')}>🕯 Rituais & Hábitos</Chip>
       </View>
 
       {activeTab === 'tarot' && (
-        <View style={{ gap: 22 }}>
-          <View style={{ gap: 6 }}>
-            <Text style={{ fontFamily: font.display, fontSize: 16, fontWeight: '700', color: palette.acLite }}>☯ Oráculo & Leitura de Tarot Estruturada</Text>
-            <Text style={{ fontSize: 13, lineHeight: 18, opacity: 0.85, color: '#fff' }}>
-              O sorteio do baralho Rider-Waite-Smith é processado de forma determínica. Em seguida a combinação é enviada para POST /v1/tarot/reading.
+        <View style={{ gap: 18 }}>
+          <View style={{ gap: 4 }}>
+            <Text style={{ fontFamily: font.display, fontSize: 16, fontWeight: '700', color: palette.acLite }}>☯ Oráculo & Leitura de Tarot</Text>
+            <Text style={{ fontSize: 12.5, lineHeight: 17, opacity: 0.85, color: '#fff' }}>
+              Sorteio com imagens autênticas do baralho Rider-Waite.
             </Text>
           </View>
 
-          <View style={{ gap: 18 }}>
-            <H2 sub="Escolha a tiragem, digite sua questão e consulte o oráculo.">Consultar o Oráculo</H2>
+          <View style={{ gap: 14 }}>
+            <Text style={{ fontSize: 12, opacity: 0.6, color: '#fff' }}>Método de Tiragem:</Text>
 
-            <View>
-              <Text style={{ fontSize: 12, opacity: 0.6, marginBottom: 8, color: '#fff' }}>Selecione o Método de Tiragem:</Text>
-              <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
-                {Object.keys(METHOD_DESCRIPTIONS).map(m => (
-                  <Chip key={m} on={selectedMethod === m} onPress={() => { setSelectedMethod(m); setDrawnCards([]); setReadingResult(null); }}>{m}</Chip>
-                ))}
-              </View>
-              <Text style={{ marginTop: 10, fontSize: 12.5, lineHeight: 17, opacity: 0.85, color: '#fff' }}>
-                <Text style={{ fontWeight: '700' }}>{METHOD_DESCRIPTIONS[selectedMethod].title}:</Text> {METHOD_DESCRIPTIONS[selectedMethod].didactic}
-              </Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {Object.keys(METHOD_DESCRIPTIONS).map(m => (
+                <Pressable
+                  key={m}
+                  onPress={() => { setSelectedMethod(m); setDrawnCards([]); setReadingResult(null); }}
+                  style={{
+                    flex: 1, minWidth: '45%', paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12,
+                    borderWidth: 1, borderColor: selectedMethod === m ? palette.acLite : 'rgba(255,255,255,0.1)',
+                    backgroundColor: selectedMethod === m ? palette.ac2Alpha(0.3) : 'rgba(0,0,0,0.3)',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text style={{ fontSize: 13, fontWeight: '700', color: selectedMethod === m ? '#fff' : palette.acLite }}>{m}</Text>
+                </Pressable>
+              ))}
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
+            <Text style={{ fontSize: 12, opacity: 0.8, color: '#fff', fontStyle: 'italic' }}>
+              ✦ {METHOD_DESCRIPTIONS[selectedMethod].title}: {METHOD_DESCRIPTIONS[selectedMethod].didactic}
+            </Text>
+
+            <View style={{ gap: 10 }}>
               <TextInput
-                placeholder="Qual a sua dúvida ou intenção? (opcional)"
+                placeholder="Qual a sua dúvida ou intenção?"
                 placeholderTextColor="rgba(255,255,255,.4)"
                 value={question}
                 onChangeText={setQuestion}
-                style={{ flexGrow: 1, minWidth: 200, backgroundColor: palette.acdAlpha(0.28), borderWidth: 1, borderColor: 'rgba(255,255,255,.15)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, color: '#fff', fontSize: 14 }}
+                style={{ backgroundColor: palette.acdAlpha(0.28), borderWidth: 1, borderColor: 'rgba(255,255,255,.15)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, color: '#fff', fontSize: 13.5 }}
               />
-              <Pressable onPress={handlePerformReading} disabled={loading}>
-                <Text style={{ color: '#fff', fontFamily: font.body, fontSize: 15, fontWeight: '700', paddingVertical: 10, paddingHorizontal: 20 }}>
-                  {loading ? 'Consultando LLM...' : '✦ Realizar Tiragem'}
+              <Pressable
+                onPress={handlePerformReading}
+                disabled={loading}
+                style={{ backgroundColor: palette.acDeep, borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#fff', fontFamily: font.body, fontSize: 14.5, fontWeight: '700' }}>
+                  {loading ? '🔮 Consultando Oráculo...' : '✦ Sortear Cartas & Interpretar'}
                 </Text>
               </Pressable>
             </View>
 
             {drawnCards.length > 0 && (
-              <View style={{ gap: 14 }}>
-                <Text style={{ fontSize: 12, opacity: 0.6, fontWeight: '700', color: '#fff' }}>Cartas Sorteadas na Mesa ({drawnCards.length}):</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View style={{ flexDirection: 'row', gap: 16 }}>
-                    {drawnCards.map((c, i) => <TarotCardVisual key={i} cardData={c} palette={palette} />)}
-                  </View>
-                </ScrollView>
+              <View style={{ gap: 10 }}>
+                <Text style={{ fontSize: 12, opacity: 0.7, fontWeight: '700', color: '#fff' }}>Cartas na Mesa ({drawnCards.length}):</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                  {drawnCards.map((c, i) => (
+                    <TarotCardVisual key={i} cardData={c} palette={palette} />
+                  ))}
+                </View>
               </View>
             )}
 
             {readingResult && (
-              <View style={{ gap: 12 }}>
-                <Text style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1.5, color: palette.ac2, fontWeight: '700' }}>✦ Interpretação Estruturada do Tarot</Text>
-                <Text style={{ fontSize: 15, fontWeight: '700', color: '#fff', fontStyle: 'italic' }}>"{readingResult.resumo_astrologico || readingResult.resumo_leitura}"</Text>
-                <Text style={{ fontSize: 13.5, lineHeight: 19, color: 'rgba(255,255,255,0.9)' }}>
-                  <Text style={{ fontWeight: '700' }}>Síntese da Leitura: </Text>{readingResult.sintese_leitura || readingResult.sintese_geral}
+              <View style={{ gap: 10, padding: 14, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.4)', borderWidth: 1, borderColor: palette.ac2Alpha(0.4) }}>
+                <Text style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1.2, color: palette.ac2, fontWeight: '700' }}>✦ Interpretação do Oráculo</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#fff', fontStyle: 'italic' }}>"{readingResult.resumo_astrologico || readingResult.resumo_leitura}"</Text>
+                <Text style={{ fontSize: 13, lineHeight: 18, color: 'rgba(255,255,255,0.9)' }}>
+                  <Text style={{ fontWeight: '700' }}>Síntese: </Text>{readingResult.sintese_leitura || readingResult.sintese_geral}
                 </Text>
-                {readingResult.analise_cartas && (
-                  <View style={{ gap: 8, marginTop: 4 }}>
-                    <Text style={{ fontSize: 12, opacity: 0.7, fontWeight: '700', color: '#fff' }}>Detalhes por Posição:</Text>
-                    {readingResult.analise_cartas.map((item, idx) => (
-                      <View key={idx} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,.05)' }}>
-                        <Text style={{ fontSize: 13, color: '#fff' }}>
-                          <Text style={{ color: palette.acLite, fontWeight: '700' }}>{item.posicao} ({item.carta}): </Text>{item.interpretacao}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-                <Text style={{ marginTop: 6, fontSize: 13.5, color: '#7ce0a8', fontWeight: '600' }}>
-                  ✦ Conselho Prático: {readingResult.conselho_pratico || readingResult.conselho_objetivo}
+                <Text style={{ fontSize: 13, color: '#7ce0a8', fontWeight: '600', marginTop: 4 }}>
+                  ✦ Conselho: {readingResult.conselho_pratico || readingResult.conselho_objetivo}
                 </Text>
               </View>
             )}
@@ -222,29 +264,29 @@ export default function Espiritualidade() {
       )}
 
       {activeTab === 'diario' && (
-        <View style={{ gap: 16 }}>
-          <H2 sub="Insights rápidos, registro de sonhos e sincronicidades salvas no banco de dados.">Diário & Intuição</H2>
+        <View style={{ gap: 14 }}>
+          <H2 sub="Insights rápidos e intuição salvos no banco de dados.">Diário & Intuição</H2>
           <AnimatedList
-            title="Registros de Intuição & Sonhos"
+            title="Registros de Intuição"
             items={reflections.map(r => r.text || r.title || r.name)}
             onAdd={newItems => newItems.forEach(handleAddReflectionText)}
             onRemove={handleDeleteReflection}
-            emptyText="Nenhum registro de intuição ou sonho cadastrado até o momento."
-            fieldLabel="Nova Intuição ou Sonho"
+            emptyText="Nenhum registro cadastrado até o momento."
+            fieldLabel="Nova Intuição"
           />
         </View>
       )}
 
       {activeTab === 'rituais' && (
-        <View style={{ gap: 16 }}>
-          <H2 sub="Práticas de presença, rituais lunares, purificação e hábitos de serenidade salvos no banco de dados.">Rituais & Costumes</H2>
+        <View style={{ gap: 14 }}>
+          <H2 sub="Práticas de presença e hábitos de serenidade salvos no banco de dados.">Rituais & Costumes</H2>
           <AnimatedList
-            title="Rituais & Costumes Cadastrados"
+            title="Rituais Cadastrados"
             items={rituals.map(r => r.title || r.name)}
             onAdd={newItems => newItems.forEach(handleAddRitualText)}
             onRemove={handleDeleteRitual}
-            emptyText="Nenhum ritual ou costume cadastrado até o momento."
-            fieldLabel="Novo Ritual ou Costume"
+            emptyText="Nenhum ritual cadastrado até o momento."
+            fieldLabel="Novo Ritual"
           />
         </View>
       )}

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, TextInput, ScrollView, Modal as RNModal } from 'react-native';
+import { View, Pressable, ScrollView, Modal as RNModal } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { OSINT, MODAL_TABS, ITEMSTATS, ITEMHISTORY } from '../data.js';
 import { Chip, ChipRow, font, label } from '../ui.jsx';

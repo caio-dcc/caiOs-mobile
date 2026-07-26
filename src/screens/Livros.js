@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, Platform } from 'react-native';
+import { View, Pressable, Platform } from 'react-native';
+import TextInput from '../TextInput.js';
+import Text from '../Text.js';
 import { useSettings } from '../settings.jsx';
 import { api } from '../api.js';
 import { font, card, H2, GridRow, Chip } from '../ui.jsx';
@@ -97,7 +99,8 @@ export default function Livros() {
         </Pressable>
       </View>
 
-      <GridRow min={200}>
+      {/* indicadores lado a lado */}
+      <GridRow min={150} gap={10} cols={2}>
         <View style={{ ...card, gap: 6 }}>
           <Text style={{ fontSize: 12, opacity: 0.5, textTransform: 'uppercase', color: '#fff' }}>Obras Cadastradas</Text>
           <Text style={{ fontSize: 26, fontWeight: '700', color: palette.acLite }}>{books.length}</Text>
@@ -115,7 +118,7 @@ export default function Livros() {
       {showAddForm && (
         <View style={{ ...card, gap: 16, borderWidth: 1, borderColor: palette.ac2Alpha(0.35) }}>
           <Text style={{ fontSize: 15, fontWeight: '700', color: palette.acLite }}>Cadastrar Novo Livro</Text>
-          <GridRow min={200} gap={14}>
+          <GridRow min={200} gap={14} cols={1}>
             <View>
               <Text style={{ fontSize: 12, opacity: 0.6, marginBottom: 5, color: '#fff' }}>Título do Livro</Text>
               <FieldInput palette={palette} placeholder="Ex: O Homem e Seus Símbolos" value={newTitle} onChangeText={setNewTitle} />
@@ -154,7 +157,7 @@ export default function Livros() {
         {GENRES.map(g => <Chip key={g} on={filterGenre === g} onPress={() => setFilterGenre(g)}>{g}</Chip>)}
       </View>
 
-      <GridRow min={280}>
+      <GridRow min={280} cols={1}>
         {sortedBooks.length === 0 ? (
           <View style={{ ...card, alignItems: 'center', padding: 30, opacity: 0.5 }}>
             <Text style={{ color: '#fff', fontSize: 14 }}>Nenhum livro encontrado nesta categoria.</Text>

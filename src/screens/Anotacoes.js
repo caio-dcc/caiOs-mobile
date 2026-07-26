@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import Text from '../Text.js';
 import { useApp } from '../AppContext.js';
 import { NOTES } from '../data.js';
 import { Tag, GridRow, font } from '../ui.jsx';
@@ -13,7 +14,7 @@ export default function Anotacoes() {
   }
 
   return (
-    <GridRow min={280}>
+    <GridRow min={280} cols={1}>
       {NOTES.map((n, i) => (
         <View key={i} style={{ borderRadius: 18, padding: 18 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
