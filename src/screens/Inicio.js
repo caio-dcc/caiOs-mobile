@@ -163,17 +163,19 @@ export default function Inicio() {
           </Pressable>
         </View>
 
-        {INITIAL_FORM_FIELDS.map(([fieldLabel, options]) => (
-          <AnimatedList
-            key={fieldLabel}
-            title={fieldLabel}
-            items={formValues[fieldLabel] || []}
-            onAdd={newItems => newItems.forEach(item => toggleFormPill(fieldLabel, item))}
-            onRemove={idx => { const item = (formValues[fieldLabel] || [])[idx]; if (item) toggleFormPill(fieldLabel, item); }}
-            emptyText="Nenhum item selecionado."
-            fieldLabel={fieldLabel}
-          />
-        ))}
+        <GridRow min={150} gap={10} cols={2}>
+          {INITIAL_FORM_FIELDS.map(([fieldLabel, options]) => (
+            <AnimatedList
+              key={fieldLabel}
+              title={fieldLabel}
+              items={formValues[fieldLabel] || []}
+              onAdd={newItems => newItems.forEach(item => toggleFormPill(fieldLabel, item))}
+              onRemove={idx => { const item = (formValues[fieldLabel] || [])[idx]; if (item) toggleFormPill(fieldLabel, item); }}
+              emptyText="Nenhum item selecionado."
+              fieldLabel={fieldLabel}
+            />
+          ))}
+        </GridRow>
 
         <View>
           <Text style={label}>Anotação do dia</Text>
