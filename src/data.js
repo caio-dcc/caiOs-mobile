@@ -27,18 +27,13 @@ export const WORK_RULES = [
 ];
 
 export const OSINT = [
-  ['Lemmit API', 'busca posts e comunidades espelhadas do Lemmit por termo ou autor', 'termo · @autor', 'desconectado', 'passivo', 'termo, comunidade ou @autor', 'a Lemmit API responde em JSON público; cada consulta entra na Memória com termo, hora e IP de saída.', []],
-  ['Câmeras públicas próximas', 'feeds abertos de trânsito e praças num raio da sua localidade', 'raio em km', 'desconectado', 'passivo', 'raio em km', 'só feeds declaradamente públicos.', []],
-  ['Sherlock', 'script de username em 400+ sites, roda local e devolve só os hits', 'username', 'desconectado', 'ativo', 'username sem @', 'sherlock consulta os sites direto.', []],
+  ['Lemmiti - Enriquecimento de dados', 'busca posts e comunidades espelhadas para enriquecimento de dados por termo ou autor', 'termo · @autor', 'desconectado', 'passivo', 'termo ou @autor', 'consulta redes e comunidades espelhadas.', []],
+  ['Câmeras públicas', 'feeds abertos de trânsito e praças num raio da sua localidade', 'raio em km', 'desconectado', 'passivo', 'sua localização', 'georreferenciamento de câmeras de trânsito.', []],
+  ['Sherlock', 'script de username em 400+ sites, roda local e devolve só os hits', 'username', 'desconectado', 'ativo', 'username sem @', 'sherlock consulta 400+ plataformas.', []],
+  ['CNPJ Finder', 'consulta e enriquecimento de dados cadastrais de CNPJ, empresas e sócios', 'CNPJ · Razão Social', 'desconectado', 'passivo', 'digite o CNPJ', 'registros públicos e diário oficial.', []],
   ['Holehe', 'descobre em quais serviços um e-mail tem conta, sem enviar e-mail', 'e-mail', 'desconectado', 'passivo', 'e-mail do alvo', 'holehe usa fluxos de recuperação de senha.', []],
   ['Vazamentos de credencial', 'cruza e-mail e senha em bases públicas de leak', 'e-mail · domínio', '0 achados', 'passivo', 'e-mail ou domínio', 'só hashes e metadados de vazamentos já públicos.', []],
-  ['Shodan / dispositivos expostos', 'serviços e câmeras IP abertos num IP, faixa ou cidade', 'ip · cidade', 'desconectado', 'passivo', 'ip, faixa CIDR ou cidade', 'consulta o índice do Shodan.', []],
-  ['theHarvester', 'e-mails, subdomínios e hosts de um domínio via buscadores', 'domínio', 'desconectado', 'passivo', 'domínio alvo', 'coleta indireta por buscadores.', []],
-  ['Imagem reversa & EXIF', 'rosto, foto de perfil e metadados escondidos no arquivo', 'imagem', '0 achados', 'ativo', 'arraste a imagem ou cole a url', 'a busca reversa envia a imagem pra terceiros.', []],
-  ['Registros públicos BR', 'processos, sócios de empresa e diário oficial', 'nome · CPF/CNPJ', '0 achados', 'passivo', 'nome completo, CPF ou CNPJ', 'fontes oficiais e abertas.', []],
-  ['Domínios & WHOIS', 'registro, DNS histórico, certificados e subdomínios', 'domínio', 'desconectado', 'passivo', 'domínio ou url', 'whois e transparência de certificados.', []],
-  ['Arquivo da web', 'versões antigas de páginas, bios e perfis apagados', 'url', 'desconectado', 'passivo', 'url ou perfil', 'o Wayback guarda o que o alvo já apagou.', []],
-  ['Grafo de relações', 'cruza achados e pessoas do seu cadastro num mapa de ligações', 'alvo · pessoa', '0 nós', 'passivo', 'alvo ou pessoa do cadastro', 'o grafo só liga o que já está registrado.', []]
+  ['Shodan / dispositivos expostos', 'serviços e câmeras IP abertos num IP, faixa ou cidade', 'ip · cidade', 'desconectado', 'passivo', 'ip, faixa CIDR ou cidade', 'consulta o índice do Shodan.', []]
 ];
 
 export const META = {

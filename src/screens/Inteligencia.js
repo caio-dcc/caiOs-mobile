@@ -84,7 +84,7 @@ export default function Inteligencia() {
 
       <View style={{ gap: 12, marginBottom: 26 }}>
         <Text style={{ fontFamily: font.display, fontSize: 16, fontWeight: '600', color: palette.acLite }}>Ferramentas Principais de Inteligência</Text>
-        {OSINT.slice(0, 3).map((t, i) => (
+        {OSINT.slice(0, 4).map((t, i) => (
           <Pressable
             key={t[0]}
             onPress={() => openModal({ kind: 'osint', i })}
