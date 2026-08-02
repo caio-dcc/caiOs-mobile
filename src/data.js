@@ -28,7 +28,7 @@ export const WORK_RULES = [
 
 export const OSINT = [
   ['Lemmiti - Enriquecimento de dados', 'busca posts e comunidades espelhadas para enriquecimento de dados por termo ou autor', 'termo · @autor', 'desconectado', 'passivo', 'termo ou @autor', 'consulta redes e comunidades espelhadas.', []],
-  ['Câmeras públicas', 'feeds abertos de trânsito e praças num raio da sua localidade', 'raio em km', 'desconectado', 'passivo', 'sua localização', 'georreferenciamento de câmeras de trânsito.', []],
+  ['Missa de 7º Dia', 'envio e cadastro automatizado de nomes para intenção de missa de 7º dia em igrejas', 'nome do falecido · igreja', 'pronto', 'ativo', 'nome completo e data', 'envia lista de nomes para intenções de missa.', []],
   ['Sherlock', 'script de username em 400+ sites, roda local e devolve só os hits', 'username', 'desconectado', 'ativo', 'username sem @', 'sherlock consulta 400+ plataformas.', []],
   ['CNPJ Finder', 'consulta e enriquecimento de dados cadastrais de CNPJ, empresas e sócios', 'CNPJ · Razão Social', 'desconectado', 'passivo', 'digite o CNPJ', 'registros públicos e diário oficial.', []],
   ['Holehe', 'descobre em quais serviços um e-mail tem conta, sem enviar e-mail', 'e-mail', 'desconectado', 'passivo', 'e-mail do alvo', 'holehe usa fluxos de recuperação de senha.', []],
