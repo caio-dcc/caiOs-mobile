@@ -1,9 +1,8 @@
 // Dados estáticos / mock — espelha react/src/data.js. Ver BACKEND.md para o contrato de API pretendido.
 
-// [rótulo, id da rota] — a ordem de exibição é independente do id da rota
 export const NAV = [
   ['⌂ Início', 0], ['⌘ Assistente', 1], ['◈ Financeiro', 2], ['☍ Social', 3], ['✎ Anotações', 4],
-  ['☌ Eventos', 5], ['❖ Itens', 6], ['⚥ Pessoas', 7], ['☤ Memória', 8], ['⎘ Bucket', 9],
+  ['☌ Eventos', 5], ['❖ Itens', 6], ['☤ Memória', 8], ['⎘ Bucket', 9],
   ['⚏ Calendário', 10], ['☉ Inteligência', 11], ['☯ Espiritualidade', 13], ['⌬ Filmes', 14], ['⚎ Livros', 15], ['⚙ Configurações', 12]
 ];
 
