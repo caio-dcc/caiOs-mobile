@@ -83,34 +83,6 @@ export default function Inteligencia() {
       )}
 
       <View style={{ gap: 12, marginBottom: 26 }}>
-        <Text style={{ fontFamily: font.display, fontSize: 16, fontWeight: '600', color: palette.acLite }}>Ferramentas Principais de Inteligência</Text>
-        {OSINT.slice(0, 4).map((t, i) => (
-          <Pressable
-            key={t[0]}
-            onPress={() => openModal({ kind: 'osint', i })}
-            style={{ borderRadius: 18, borderWidth: 1, borderColor: palette.ac2Alpha(0.2), backgroundColor: palette.acdAlpha(0.22), padding: 16, gap: 10 }}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-              <Text style={{ fontSize: 15.5, fontWeight: '700', color: '#fff', flex: 1, flexShrink: 1 }} numberOfLines={1}>
-                {t[0]}
-              </Text>
-              <Text style={{
-                fontSize: 10, textTransform: 'uppercase', fontWeight: '700', paddingVertical: 2, paddingHorizontal: 7, borderRadius: 6,
-                borderWidth: 1, borderColor: t[4] === 'ativo' ? 'rgba(255,160,160,.4)' : palette.ac2Alpha(0.35),
-                color: t[4] === 'ativo' ? '#ffb3b3' : palette.acLite,
-                flexShrink: 0
-              }}>
-                {t[4]}
-              </Text>
-            </View>
-            <Text style={{ fontSize: 13, opacity: 0.65, color: '#fff' }}>{t[1]}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-              <Text style={{ fontSize: 12, opacity: 0.5, color: '#fff' }}>entrada: {t[2]}</Text>
-              <Text style={{ fontSize: 12.5, fontWeight: '600', color: t[3] === 'pronto' ? 'rgba(255,255,255,.5)' : '#8fe0b0' }}>{t[3]}</Text>
-              <Text style={{ color: palette.acLite, fontFamily: font.body, fontSize: 13.5, fontWeight: '700' }}>Executar ➔</Text>
-            </View>
-          </Pressable>
-        ))}
 
         {/* Card de Câmeras Públicas no Mobile */}
         <Pressable
